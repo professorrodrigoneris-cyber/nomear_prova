@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Provas Nomeadas</title>
+    <!-- Google Fonts: Inter e Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="background-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+
+    <main class="container">
+        <header class="header">
+            <h1>Gerador de Provas</h1>
+            <p>Automatize a inserção de nomes dos alunos nas provas em formato PDF.</p>
+        </header>
+
+        <section class="glass-card">
+            <div class="form-group slide-up" style="--delay: 1;">
+                <label for="pdfFile">
+                    <span class="icon">📄</span> Arquivo PDF da Prova
+                </label>
+                <div class="file-upload-wrapper">
+                    <input type="file" id="pdfFile" accept="application/pdf" class="file-input">
+                    <div class="file-upload-label">
+                        <span id="fileNameDisplay">Clique ou arraste o seu PDF aqui...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group slide-up" style="--delay: 2;">
+                <label for="classSelect">
+                    <span class="icon">👥</span> Turma / Lista de Nomes
+                </label>
+                <div class="select-wrapper">
+                    <select id="classSelect">
+                        <option value="" disabled selected>Selecione uma turma...</option>
+                        <!-- As opções serão preenchidas dinamicamente pelo data.js -->
+                    </select>
+                </div>
+            </div>
+
+            <div class="settings-grid slide-up" style="--delay: 3;">
+                <div class="form-group">
+                    <label for="fontSize">Tamanho da Fonte</label>
+                    <input type="number" id="fontSize" value="12" min="8" max="72">
+                </div>
+                
+                <div class="form-group">
+                    <label for="posX">Posição X</label>
+                    <input type="number" id="posX" value="100">
+                </div>
+                
+                <div class="form-group">
+                    <label for="posY">Posição Y</label>
+                    <input type="number" id="posY" value="750">
+                </div>
+            </div>
+
+            <div class="checkbox-group slide-up" style="--delay: 4;">
+                <label class="custom-checkbox">
+                    <input type="checkbox" id="addBlank" checked>
+                    <span class="checkmark"></span>
+                    <span>Adicionar prova em branco no final</span>
+                </label>
+            </div>
+
+            <div class="actions slide-up" style="--delay: 5;">
+                <button id="visualizeBtn" class="btn btn-secondary">
+                    <span class="icon">👁️</span> Visualizar Posição
+                </button>
+                <button id="generateBtn" class="btn btn-primary">
+                    <span class="icon">⚡</span> Gerar Provas Nomeadas
+                </button>
+            </div>
+
+            <div id="statusMessage" class="status-message hidden">
+                <!-- Mensagens de status aparecerão aqui -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal para Pré-visualização -->
+    <div id="previewModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Visualização da Posição</h2>
+                <button id="closeModal" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-hint">Um retângulo vermelho indica onde o nome será impresso na primeira página.</p>
+                <iframe id="previewFrame" class="preview-frame"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bibliotecas externas -->
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <!-- Dados e Lógica -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
