@@ -51,16 +51,6 @@
                     <label for="fontSize">Tamanho da Fonte</label>
                     <input type="number" id="fontSize" value="12" min="8" max="72">
                 </div>
-                
-                <div class="form-group">
-                    <label for="posX">Posição X</label>
-                    <input type="number" id="posX" value="100">
-                </div>
-                
-                <div class="form-group">
-                    <label for="posY">Posição Y</label>
-                    <input type="number" id="posY" value="750">
-                </div>
             </div>
 
             <div class="checkbox-group slide-up" style="--delay: 4;">
@@ -90,18 +80,27 @@
     <div id="previewModal" class="modal hidden">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Visualização da Posição</h2>
+                <h2>Posicionar Nome</h2>
                 <button id="closeModal" class="close-btn">&times;</button>
             </div>
             <div class="modal-body">
-                <p class="modal-hint">Um retângulo vermelho indica onde o nome será impresso na primeira página.</p>
-                <iframe id="previewFrame" class="preview-frame"></iframe>
+                <p class="modal-hint">Clique, segure e arraste a caixa vermelha para posicionar onde o nome será impresso.</p>
+                <div class="preview-container" id="previewContainer">
+                    <div class="canvas-wrapper" id="canvasWrapper">
+                        <canvas id="pdfCanvas"></canvas>
+                        <div id="dragBox" class="drag-box">Nome do Aluno (Teste)</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="confirmPosBtn" class="btn btn-primary">Ok / Confirmar Posição</button>
             </div>
         </div>
     </div>
 
     <!-- Bibliotecas externas -->
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <!-- Dados e Lógica -->
     <script src="data.js"></script>
     <script src="script.js"></script>

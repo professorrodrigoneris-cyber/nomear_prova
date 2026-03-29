@@ -10,17 +10,34 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Settings
     const inputSize = document.getElementById('fontSize');
-    const inputX = document.getElementById('posX');
-    const inputY = document.getElementById('posY');
     const checkBlank = document.getElementById('addBlank');
+
+    let pdfPosX = 100;
+    let pdfPosY = 750;
+    let isPositionVerified = false;
 
     // Modal
     const modal = document.getElementById('previewModal');
     const btnCloseModal = document.getElementById('closeModal');
-    const previewFrame = document.getElementById('previewFrame');
+    const confirmPosBtn = document.getElementById('confirmPosBtn');
+    const canvasWrapper = document.getElementById('canvasWrapper');
+    const pdfCanvas = document.getElementById('pdfCanvas');
+    const dragBox = document.getElementById('dragBox');
 
     let pdfFileBuffer = null;
+    let pdfWidth = 0;
+    let pdfHeight = 0;
+    
+    // Configura o worker do PDF.js
+    const pdfjsLib = window['pdfjs-dist/build/pdf'];
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
     const { PDFDocument, rgb, StandardFonts } = PDFLib;
+
+    function updateGenerateBtnState() {
+        btnGenerate.disabled = !isPositionVerified;
+    }
+    updateGenerateBtnState();
 
     // Initialize Select Dropdown
     if (typeof classLists !== 'undefined') {
@@ -47,6 +64,8 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const arrayBuffer = await file.arrayBuffer();
                 pdfFileBuffer = new Uint8Array(arrayBuffer);
+                isPositionVerified = false;
+                updateGenerateBtnState();
                 showStatus('PDF carregado com sucesso!', 'info');
                 setTimeout(() => hideStatus(), 3000);
             } catch (err) {
@@ -56,6 +75,8 @@ document.addEventListener('DOMContentLoaded', () => {
             fileNameDisplay.textContent = 'Clique ou arraste o seu PDF aqui...';
             fileNameDisplay.style.color = 'var(--text-muted)';
             pdfFileBuffer = null;
+            isPositionVerified = false;
+            updateGenerateBtnState();
         }
     });
 
@@ -97,8 +118,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function saveSettings() {
         const settings = {
             fontSize: inputSize.value,
-            posX: inputX.value,
-            posY: inputY.value,
+            posX: pdfPosX,
+            posY: pdfPosY,
             addBlank: checkBlank.checked
         };
         localStorage.setItem('geradorProvasConfig', JSON.stringify(settings));
@@ -110,8 +131,8 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const settings = JSON.parse(saved);
                 if (settings.fontSize) inputSize.value = settings.fontSize;
-                if (settings.posX) inputX.value = settings.posX;
-                if (settings.posY) inputY.value = settings.posY;
+                if (settings.posX !== undefined) pdfPosX = Number(settings.posX);
+                if (settings.posY !== undefined) pdfPosY = Number(settings.posY);
                 if (settings.addBlank !== undefined) checkBlank.checked = settings.addBlank;
             } catch(e) {}
         }
@@ -138,7 +159,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Modal Handlers
     btnCloseModal.addEventListener('click', () => {
         modal.classList.add('hidden');
-        previewFrame.src = ''; // limpa memória
     });
 
     modal.addEventListener('click', (e) => {
@@ -147,50 +167,138 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    confirmPosBtn.addEventListener('click', () => {
+        if (pdfWidth === 0 || pdfHeight === 0) return;
+        
+        const wrapperW = canvasWrapper.clientWidth;
+        const wrapperH = canvasWrapper.clientHeight;
+        
+        const normX = dragBox.offsetLeft / wrapperW;
+        const normY = dragBox.offsetTop / wrapperH;
+        const fontSize = parseInt(inputSize.value);
+
+        pdfPosX = Math.round(normX * pdfWidth);
+        pdfPosY = Math.round(pdfHeight - (normY * pdfHeight) - fontSize);
+        
+        saveSettings();
+        isPositionVerified = true;
+        updateGenerateBtnState();
+        
+        modal.classList.add('hidden');
+        showStatus('Posição confirmada! Agora você pode gerar as provas.', 'success');
+        setTimeout(() => hideStatus(), 3000);
+    });
+
     // Action: Visualize Position
+    let isDragging = false;
+    let dragStartX, dragStartY, initialLeft, initialTop;
+
+    function onMouseDown(e) {
+        if (e.target !== dragBox) return;
+        isDragging = true;
+        dragStartX = e.clientX || (e.touches && e.touches[0].clientX);
+        dragStartY = e.clientY || (e.touches && e.touches[0].clientY);
+        initialLeft = dragBox.offsetLeft;
+        initialTop = dragBox.offsetTop;
+        e.preventDefault();
+    }
+
+    function onMouseMove(e) {
+        if (!isDragging) return;
+        const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+        const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+        const dx = clientX - dragStartX;
+        const dy = clientY - dragStartY;
+        
+        const wrapperW = canvasWrapper.clientWidth;
+        const wrapperH = canvasWrapper.clientHeight;
+        
+        let newLeft = initialLeft + dx;
+        let newTop = initialTop + dy;
+
+        newLeft = Math.max(0, Math.min(newLeft, wrapperW - dragBox.offsetWidth));
+        newTop = Math.max(0, Math.min(newTop, wrapperH - dragBox.offsetHeight));
+
+        const normLeft = newLeft / wrapperW;
+        const normTop = newTop / wrapperH;
+        
+        dragBox.style.left = `${normLeft * 100}%`;
+        dragBox.style.top = `${normTop * 100}%`;
+    }
+
+    function onMouseUp() {
+        isDragging = false;
+    }
+
+    function setupDrag() {
+        dragBox.removeEventListener('mousedown', onMouseDown);
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+        dragBox.removeEventListener('touchstart', onMouseDown);
+        document.removeEventListener('touchmove', onMouseMove);
+        document.removeEventListener('touchend', onMouseUp);
+
+        dragBox.addEventListener('mousedown', onMouseDown);
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+        dragBox.addEventListener('touchstart', onMouseDown, {passive: false});
+        document.addEventListener('touchmove', onMouseMove, {passive: false});
+        document.addEventListener('touchend', onMouseUp);
+    }
+
     btnVisualize.addEventListener('click', async () => {
         if (!validateInputs()) return;
         saveSettings();
 
         try {
-            const originPdf = await PDFDocument.load(pdfFileBuffer);
-            const font = await originPdf.embedFont(StandardFonts.Helvetica);
+            const loadingTask = pdfjsLib.getDocument({data: pdfFileBuffer});
+            const pdfDoc = await loadingTask.promise;
+            const page = await pdfDoc.getPage(1);
             
-            const firstPage = originPdf.getPages()[0];
-            const x = parseInt(inputX.value);
-            const y = parseInt(inputY.value);
+            const renderScale = 1.5;
+            const viewport = page.getViewport({ scale: renderScale });
+            const unscaledViewport = page.getViewport({ scale: 1.0 });
             
-            // Draw a red rectangle (similar to python preview)
-            firstPage.drawRectangle({
-                x: x - 2,
-                y: y - 2,
-                width: 150,
-                height: 20,
-                borderColor: rgb(1, 0, 0),
-                borderWidth: 2,
-                color: undefined // transparent fill
-            });
+            pdfWidth = unscaledViewport.width;
+            pdfHeight = unscaledViewport.height;
 
-            // Adiciona o texto "Nome do Aluno (Teste)" para referência do tamanho
+            pdfCanvas.width = viewport.width;
+            pdfCanvas.height = viewport.height;
+            pdfCanvas.style.width = '100%';
+            pdfCanvas.style.height = 'auto';
+            pdfCanvas.style.maxWidth = `${viewport.width}px`;
+            
+            const renderContext = {
+                canvasContext: pdfCanvas.getContext('2d'),
+                viewport: viewport
+            };
+            await page.render(renderContext).promise;
+
             const fontSize = parseInt(inputSize.value);
-            firstPage.drawText("Nome do Aluno (Teste)", {
-                x: x,
-                y: y,
-                size: fontSize,
-                font: font,
-                color: rgb(1, 0, 0)
-            });
-
-            const pdfBytes = await originPdf.save();
-            const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-            const blobUrl = URL.createObjectURL(blob);
+            const textBaselineTopInPoints = pdfHeight - pdfPosY - fontSize;
             
-            previewFrame.src = blobUrl;
+            let normX = pdfPosX / pdfWidth;
+            let normY = textBaselineTopInPoints / pdfHeight;
+            
+            normX = Math.max(0, Math.min(normX, 0.9));
+            normY = Math.max(0, Math.min(normY, 0.9));
+
+            dragBox.style.left = `${normX * 100}%`;
+            dragBox.style.top = `${normY * 100}%`;
+            dragBox.style.display = 'flex';
+            
             modal.classList.remove('hidden');
+
+            setTimeout(() => {
+                const displayScale = canvasWrapper.clientWidth / pdfWidth;
+                dragBox.style.fontSize = `${Math.max(8, fontSize * displayScale)}px`;
+                dragBox.style.padding = `${2 * displayScale}px`;
+                setupDrag();
+            }, 50);
 
         } catch (error) {
             console.error(error);
-            showStatus('Ocorreu um erro ao gerar a pré-visualização. Verifique se o PDF está corrompido ou protegido por senha.', 'error');
+            showStatus('Ocorreu um erro ao gerar a pré-visualização. Verifique se o PDF está legível.', 'error');
         }
     });
 
@@ -208,8 +316,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const fontSize = parseInt(inputSize.value);
-        const fontX = parseInt(inputX.value);
-        const fontY = parseInt(inputY.value);
+        const fontX = pdfPosX;
+        const fontY = pdfPosY;
 
         showStatus(`Gerando provas para ${nomes.length} alunos da ${className}. Por favor, aguarde...`, 'info');
         btnGenerate.disabled = true;
