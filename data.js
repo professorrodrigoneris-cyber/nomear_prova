@@ -263,6 +263,7 @@ const classLists = {
         "ORLI NETO GIACOMETI",
         "PIETRO REIS CENCI",
         "RICHARD MURILO DA SILVA ANDRADE"
+        "VITOR ARGOLO"
     ],
     "8º Ano": [
         "AGATHA CRISTINE CASTRO PAIXÃO",
@@ -291,6 +292,7 @@ const classLists = {
         "SAMUEL FELIPE TONKIO NEVES",
         "VALENTINA CARDOSO SECCO RODRIGUES",
         "VICTOR GABRIEL OLIVEIRA VENITH"
+        "MARIANA STELA CAPOCI"
     ],
     "9º Ano": [
         "ADRIELLY SILVA FERREIRA",
