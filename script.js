@@ -23,6 +23,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const canvasWrapper = document.getElementById('canvasWrapper');
     const pdfCanvas = document.getElementById('pdfCanvas');
     const dragBox = document.getElementById('dragBox');
+    
+    // Checklist
+    const checkFile = document.getElementById('checkFile');
+    const checkPos = document.getElementById('checkPos');
 
     let pdfFileBuffer = null;
     let pdfWidth = 0;
@@ -35,7 +39,34 @@ document.addEventListener('DOMContentLoaded', () => {
     const { PDFDocument, rgb, StandardFonts } = PDFLib;
 
     function updateGenerateBtnState() {
-        // O botão não será mais desativado aqui para podermos exibir o aviso.
+        const fileOk = !!pdfFileBuffer;
+        
+        if (fileOk) {
+            checkFile.classList.add('done');
+            checkFile.querySelector('span:first-child').textContent = '✓';
+        } else {
+            checkFile.classList.remove('done');
+            checkFile.querySelector('span:first-child').textContent = '○';
+        }
+
+        if (isPositionVerified) {
+            checkPos.classList.add('done');
+            checkPos.querySelector('span:first-child').textContent = '✓';
+        } else {
+            checkPos.classList.remove('done');
+            checkPos.querySelector('span:first-child').textContent = '○';
+        }
+
+        const isReady = fileOk && isPositionVerified;
+        
+        btnGenerate.disabled = !isReady;
+        if (isReady) {
+            btnGenerate.style.opacity = '1';
+            btnGenerate.style.cursor = 'pointer';
+        } else {
+            btnGenerate.style.opacity = '0.5';
+            btnGenerate.style.cursor = 'not-allowed';
+        }
     }
     updateGenerateBtnState();
 
@@ -171,31 +202,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Action: Visualize Position
+    let isDragging = false;
+    let dragStartX, dragStartY, initialLeft, initialTop;
+    let currentNormX = 0;
+    let currentNormY = 0;
+
     confirmPosBtn.addEventListener('click', () => {
         if (pdfWidth === 0 || pdfHeight === 0) return;
         
-        const wrapperW = canvasWrapper.clientWidth;
-        const wrapperH = canvasWrapper.clientHeight;
-        
-        const normX = dragBox.offsetLeft / wrapperW;
-        const normY = dragBox.offsetTop / wrapperH;
         const fontSize = parseInt(inputSize.value);
 
-        pdfPosX = Math.round(normX * pdfWidth);
-        pdfPosY = Math.round(pdfHeight - (normY * pdfHeight) - fontSize);
+        pdfPosX = Math.round(currentNormX * pdfWidth);
+        pdfPosY = Math.round(pdfHeight - (currentNormY * pdfHeight) - fontSize);
         
         saveSettings();
         isPositionVerified = true;
         updateGenerateBtnState();
         
         modal.classList.add('hidden');
-        showStatus('Posição confirmada! Agora você pode gerar as provas.', 'success');
+        showStatus('Posição salva! Botão "Gerar Provas" liberado.', 'success');
         setTimeout(() => hideStatus(), 3000);
     });
-
-    // Action: Visualize Position
-    let isDragging = false;
-    let dragStartX, dragStartY, initialLeft, initialTop;
 
     function onMouseDown(e) {
         if (e.target !== dragBox) return;
@@ -225,6 +253,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const normLeft = newLeft / wrapperW;
         const normTop = newTop / wrapperH;
+        
+        currentNormX = normLeft;
+        currentNormY = normTop;
         
         dragBox.style.left = `${normLeft * 100}%`;
         dragBox.style.top = `${normTop * 100}%`;
@@ -286,6 +317,9 @@ document.addEventListener('DOMContentLoaded', () => {
             
             normX = Math.max(0, Math.min(normX, 0.9));
             normY = Math.max(0, Math.min(normY, 0.9));
+
+            currentNormX = normX;
+            currentNormY = normY;
 
             dragBox.style.left = `${normX * 100}%`;
             dragBox.style.top = `${normY * 100}%`;
@@ -389,7 +423,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error(error);
             showStatus('Erro durante a geração do PDF. Verifique o console do navegador.', 'error');
         } finally {
-            btnGenerate.disabled = false;
+            updateGenerateBtnState();
             btnVisualize.disabled = false;
         }
     });

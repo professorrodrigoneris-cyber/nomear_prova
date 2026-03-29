@@ -47,6 +47,13 @@
                     <label for="fontSize">Tamanho da Fonte</label>
                     <input type="number" id="fontSize" value="12" min="8" max="72">
                 </div>
+                <div class="form-group">
+                    <label>Status da Verificação</label>
+                    <div class="status-checklist">
+                        <div id="checkFile" class="check-item pending"><span>○</span> <span>Arquivo da prova</span></div>
+                        <div id="checkPos" class="check-item pending"><span>○</span> <span>Posição do nome</span></div>
+                    </div>
+                </div>
             </div>
 
             <div class="checkbox-group slide-up" style="--delay: 4;">
@@ -61,7 +68,7 @@
                 <button id="visualizeBtn" class="btn btn-secondary">
                     <span class="icon">👁️</span> Visualizar Posição
                 </button>
-                <button id="generateBtn" class="btn btn-primary">
+                <button id="generateBtn" class="btn btn-primary" disabled style="opacity: 0.5; cursor: not-allowed;">
                     <span class="icon">⚡</span> Gerar Provas Nomeadas
                 </button>
             </div>
@@ -89,7 +96,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button id="confirmPosBtn" class="btn btn-primary">Ok / Confirmar Posição</button>
+                <button id="confirmPosBtn" class="btn btn-primary">💾 Salvar Posição Escolhida</button>
             </div>
         </div>
     </div>
