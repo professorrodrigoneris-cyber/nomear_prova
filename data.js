@@ -262,7 +262,7 @@ const classLists = {
         "NICOLY EMANUELLY DA SILVA POLICENA",
         "ORLI NETO GIACOMETI",
         "PIETRO REIS CENCI",
-        "RICHARD MURILO DA SILVA ANDRADE"
+        "RICHARD MURILO DA SILVA ANDRADE",
         "VITOR ARGOLO"
     ],
     "8º Ano": [
@@ -291,7 +291,7 @@ const classLists = {
         "RYAN VICTOR VALENTIN",
         "SAMUEL FELIPE TONKIO NEVES",
         "VALENTINA CARDOSO SECCO RODRIGUES",
-        "VICTOR GABRIEL OLIVEIRA VENITH"
+        "VICTOR GABRIEL OLIVEIRA VENITH",
         "MARIANA STELA CAPOCI"
     ],
     "9º Ano": [
