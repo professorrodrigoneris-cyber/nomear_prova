@@ -286,7 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
         saveSettings();
 
         try {
-            const loadingTask = pdfjsLib.getDocument({data: pdfFileBuffer});
+            const loadingTask = pdfjsLib.getDocument({data: pdfFileBuffer.slice(0)});
             const pdfDoc = await loadingTask.promise;
             const page = await pdfDoc.getPage(1);
             
@@ -364,10 +364,10 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             // Create a new document to hold everything
             const finalPdf = await PDFDocument.create();
-            const font = await finalPdf.embedFont(StandardFonts.HelveticaBold); // Using bold font by default to match Arial feel
+            const font = await finalPdf.embedFont(StandardFonts.Helvetica); 
             
-            // Load the original user document
-            const sourceDoc = await PDFDocument.load(pdfFileBuffer);
+            // Load the original user document safely cloning the buffer
+            const sourceDoc = await PDFDocument.load(pdfFileBuffer.slice(0));
             const numPages = sourceDoc.getPages().length;
             const sourcePageIndices = Array.from({ length: numPages }, (_, i) => i);
 
