@@ -420,7 +420,7 @@ body {
     position: absolute;
     border: 1px dashed transparent;
     background-color: transparent;
-    color: #0f172a;
+    color: red;
     font-weight: bold;
     font-family: Arial, Helvetica, sans-serif;
     cursor: grab;
