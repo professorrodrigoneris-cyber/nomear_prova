@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const { PDFDocument, rgb, StandardFonts } = PDFLib;
 
     function updateGenerateBtnState() {
-        btnGenerate.disabled = !isPositionVerified;
+        // O botão não será mais desativado aqui para podermos exibir o aviso.
     }
     updateGenerateBtnState();
 
@@ -151,6 +151,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!validateInputs()) return false;
         if (!classSelect.value) {
             showStatus('Por favor, selecione uma turma/lista de nomes.', 'error');
+            return false;
+        }
+        if (!isPositionVerified) {
+            showStatus('Por favor, clique em "Visualizar Posição" e posicione o local antes de gerar as provas.', 'error');
             return false;
         }
         return true;
