@@ -379,6 +379,8 @@ body {
     flex-direction: column;
     padding: 1rem;
     background: #f8fafc;
+    min-height: 0;
+    overflow: hidden;
 }
 
 .modal-hint {
@@ -399,6 +401,7 @@ body {
     align-items: flex-start;
     padding: 1rem;
     position: relative;
+    min-height: 0;
 }
 
 .canvas-wrapper {
