@@ -8,6 +8,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnGenerate = document.getElementById('generateBtn');
     const statusBox = document.getElementById('statusMessage');
     
+    // Student Selection Elements
+    const selectAllStudents = document.getElementById('selectAllStudents');
+    const selectSpecificBtn = document.getElementById('selectSpecificBtn');
+    const studentsModal = document.getElementById('studentsModal');
+    const closeStudentsModal = document.getElementById('closeStudentsModal');
+    const studentsList = document.getElementById('studentsList');
+    const confirmStudentsBtn = document.getElementById('confirmStudentsBtn');
+    
+    let selectedStudents = [];
+    let useSpecificStudents = false;
+
     // Settings
     const inputSize = document.getElementById('fontSize');
     const checkBlank = document.getElementById('addBlank');
@@ -82,6 +93,108 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         showStatus('Erro: Dados das turmas não encontrados.', 'error');
     }
+
+    // Student Selection Logic
+    classSelect.addEventListener('change', () => {
+        selectAllStudents.checked = true;
+        useSpecificStudents = false;
+        selectedStudents = [];
+    });
+
+    selectAllStudents.addEventListener('change', (e) => {
+        if (e.target.checked) {
+            useSpecificStudents = false;
+            selectedStudents = [];
+        } else {
+            openStudentsModal();
+        }
+    });
+
+    selectSpecificBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        openStudentsModal();
+    });
+
+    function openStudentsModal() {
+        const className = classSelect.value;
+        if (!className) {
+            showStatus('Por favor, selecione uma turma primeiro.', 'error');
+            selectAllStudents.checked = true;
+            return;
+        }
+
+        const nomes = classLists[className];
+        studentsList.innerHTML = '';
+
+        nomes.forEach(nome => {
+            const li = document.createElement('li');
+            const label = document.createElement('label');
+            label.className = 'custom-checkbox';
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.value = nome;
+            
+            if (useSpecificStudents) {
+                checkbox.checked = selectedStudents.includes(nome);
+            } else {
+                checkbox.checked = false;
+            }
+
+            const checkmark = document.createElement('span');
+            checkmark.className = 'checkmark';
+
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = nome;
+
+            label.appendChild(checkbox);
+            label.appendChild(checkmark);
+            label.appendChild(nameSpan);
+
+            li.appendChild(label);
+            studentsList.appendChild(li);
+        });
+
+        studentsModal.classList.remove('hidden');
+    }
+
+    closeStudentsModal.addEventListener('click', () => {
+        studentsModal.classList.add('hidden');
+        if (!useSpecificStudents && !selectAllStudents.checked) {
+           selectAllStudents.checked = true;
+        }
+    });
+
+    studentsModal.addEventListener('click', (e) => {
+        if (e.target === studentsModal) {
+            closeStudentsModal.click();
+        }
+    });
+
+    confirmStudentsBtn.addEventListener('click', () => {
+        const className = classSelect.value;
+        const nomes = classLists[className];
+        const checkboxes = studentsList.querySelectorAll('input[type="checkbox"]');
+        
+        selectedStudents = [];
+        checkboxes.forEach(cb => {
+            if (cb.checked) {
+                selectedStudents.push(cb.value);
+            }
+        });
+
+        if (selectedStudents.length === nomes.length) {
+            useSpecificStudents = false;
+            selectAllStudents.checked = true;
+            studentsModal.classList.add('hidden');
+        } else if (selectedStudents.length === 0) {
+            showStatus('Você precisa selecionar pelo menos um aluno.', 'error');
+        } else {
+            useSpecificStudents = true;
+            selectAllStudents.checked = false;
+            studentsModal.classList.add('hidden');
+        }
+    });
 
     // Load saved settings from localStorage
     loadSettings();
@@ -346,8 +459,12 @@ document.addEventListener('DOMContentLoaded', () => {
         saveSettings();
 
         const className = classSelect.value;
-        const nomes = classLists[className];
+        let nomes = classLists[className];
         
+        if (useSpecificStudents && selectedStudents.length > 0) {
+            nomes = selectedStudents;
+        }
+
         if (!nomes || nomes.length === 0) {
             showStatus('A lista de nomes selecionada está vazia.', 'error');
             return;

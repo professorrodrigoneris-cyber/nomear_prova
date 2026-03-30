@@ -34,11 +34,21 @@
                 <label for="classSelect">
                     <span class="icon">👥</span> Turma / Lista de Nomes
                 </label>
-                <div class="select-wrapper">
+                <div class="select-wrapper" style="margin-bottom: 8px;">
                     <select id="classSelect">
                         <option value="" disabled selected>Selecione uma turma...</option>
                         <!-- As opções serão preenchidas dinamicamente pelo data.js -->
                     </select>
+                </div>
+                <div class="student-selection" style="display: flex; align-items: center; justify-content: space-between;">
+                    <label class="custom-checkbox" style="margin-bottom: 0;">
+                        <input type="checkbox" id="selectAllStudents" checked>
+                        <span class="checkmark"></span>
+                        <span style="font-size: 0.9rem;">Todos os alunos</span>
+                    </label>
+                    <button id="selectSpecificBtn" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; flex: none; width: auto;">
+                        Selecionar Aluno
+                    </button>
                 </div>
             </div>
 
@@ -97,6 +107,26 @@
             </div>
             <div class="modal-footer">
                 <button id="confirmPosBtn" class="btn btn-primary">💾 Salvar Posição Escolhida</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Seleção de Alunos -->
+    <div id="studentsModal" class="modal hidden">
+        <div class="modal-content" style="max-width: 500px; height: 70vh;">
+            <div class="modal-header">
+                <h2>Selecionar Alunos</h2>
+                <button id="closeStudentsModal" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body" style="background: var(--card-bg);">
+                <div class="students-list-container">
+                    <ul id="studentsList" class="students-list">
+                        <!-- Lista de alunos será gerada dinamicamente -->
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="confirmStudentsBtn" class="btn btn-primary">💾 Confirmar Seleção</button>
             </div>
         </div>
     </div>
