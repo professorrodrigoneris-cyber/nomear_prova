@@ -194,7 +194,7 @@ const classLists = {
         "YASMIN RIBEIRO RODRIGUES",
         "JULIA BAGNARA PAIVA",
         "ALICE EUGÊNIO MATEUS",
-        "NICOLY SILVA",
+        "NICOLY SILVA PEREIRA",
         "PEDRO HENRIQUE DOS SANTOS ALMEIDA"
     ],
     "5º Ano": [
@@ -296,7 +296,6 @@ const classLists = {
         "NICOLY EMANUELLY DA SILVA POLICENA",
         "ORLI NETO GIACOMETI",
         "PIETRO REIS CENCI",
-        "RICHARD MURILO DA SILVA ANDRADE",
         "VITOR ARGOLO",
         "RAMON NASCIMENTO"
     ],
